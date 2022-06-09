@@ -1,0 +1,43 @@
+.container
+{
+   background-color:rgb(white);
+   color:#1dd;
+}
+
+.container
+{
+   color:#111;
+}
+
+.card-header
+{
+   background-color:rgb(0, 0, 0);
+   
+}
+.card-body
+{
+   background-color:rgb(0, 0, 0);
+
+}
+.card-footer
+{
+   background-color:rgb(0, 0, 0);
+}
+
+ .card-container {
+  
+   background-color:rgb(0, 0, 0);
+   
+ }
+.error
+{ 
+   background-color: rgba(175, 88, 88, 0.39);
+}
+.review-header{
+
+   background-color: rgb(0, 0, 0);
+}
+.review-body{
+
+   background-color: rgb(53, 44, 44);
+}

@@ -1,0 +1,34 @@
+<div class="navbar navbar-expand-sm 
+bg-dark
+ navbar-dark fixed-top">
+  <span class="navbar-brand">Stranger Things Ratings</span>
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <a class="nav-link" routerLink='/'>Home</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink='/episodes'>Episodes</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink='/filter'>Seasons</a>
+    </li>
+    <!--Admin displayed if a user logs in-->
+    <li class="nav-item">
+      <a *ngIf="authService.loggedIn" class="nav-link" routerLink="profile">Profile</a>
+    </li>
+    <!--Admin displayed if an admin user logs in-->
+    <li class="nav-item" *ngFor="let user of webService.user_list | async">
+      <div *ngIf="authService.userProfile$ | async as profile">
+        <a *ngIf="user.email == profile.email" class="nav-link" routerLink="admin">Admin</a>
+      </div>
+    </li>
+  </ul>
+  <!--Login button toggled depending if user is logged in-->
+  <div class="form-inline ml-auto">
+    <button class="btn btn-outline-light" (click)="authService.login()" *ngIf="!authService.loggedIn">
+      Log In</button>
+    <button class="btn btn-outline-light" (click)="authService.logout()" *ngIf="authService.loggedIn">
+      Log Out</button>
+  </div>
+
+</div>

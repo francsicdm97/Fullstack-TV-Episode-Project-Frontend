@@ -1,0 +1,320 @@
+<div class="container p-5" style="margin-top: 100px">
+  <!--Button that to add episode-->
+  <div class="text-center">
+    <div *ngFor="let user of webService.user_list | async">
+      <div *ngIf="auth.userProfile$ | async as profile">
+        <button *ngIf="user.email == profile.email" type="button" class="btn btn-primary" data-toggle="modal"
+          data-target="#addEpisodeModal">
+          Add Episode
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <div class="row">
+    <!--Sort fields-->
+    <form [formGroup]="sortForm" (ngSubmit)="onSort()">
+      <div class="h1">Sort Episodes</div>
+      <div class="btn-group" style="float:left">
+        <div class="form-group">
+          <select id="sortField" name="sortField" class="form-control" formControlName="sortField">
+            <option value="1">Season</option>
+            <option value="2">Episode Number</option>
+            <option value="3">Name</option>
+            <option value="4">Runtime</option>
+            <option value="5">Average Stars</option>
+            <option value="6">Average Music Rating</option>
+            <option value="7">Average Story Rating</option>
+            <option value="8">Average Acting Rating</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <select id="sort" name="sort" class="form-control" formControlName="sort">
+            <option value="1">Ascending</option>
+            <option value="2">Descending</option>
+          </select>
+        </div>
+
+      </div>
+      <button class="btn btn-primary" type="submit">Search</button>
+
+    </form>
+
+  </div>
+  <!--Cards displayed in a row-->
+  <div class="row">
+    <div class="col-sm-6 col-lg-4 py-5" *ngFor="let episode of webService.episodes_list |  async">
+
+      <div class="card text-white bg-dark mb-3 card h-100 " [routerLink]="['/episodes', episode._id]"
+        style="cursor: pointer">
+        <img [src]="episode.image" class="card-img-top img-fluid">
+        <div class="card-img-top img-fluid-overlay">
+          <h5 class="card-title p-2">{{ episode.name }}</h5>
+
+        </div>
+        <div class="card-header">
+
+
+          Season: {{ episode.season }} Episode: {{ episode.number }}
+
+
+
+        </div>
+        <div class="card-body">
+          {{ episode.summary }}
+
+        </div>
+        <div class="card-footer text-right">
+
+          Stars: {{episode.avgStars}}
+          <br>
+          Average Music: {{episode.avgActingRating}} Story: {{episode.avgStoryRating}} Acting:
+          {{episode.avgActingRating}}
+          <br>
+          Reviews available: {{episode.reviews.length}}
+
+
+        </div>
+
+      </div>
+      <!--If the user is the author of the review show delete and edit buttons that toggle modal-->
+      <div *ngFor="let user of webService.user_list | async">
+        <div *ngIf="auth.userProfile$ | async as profile">
+          <div class="div text-right">
+            <button *ngIf="user.email == profile.email" class="btn btn-danger" (click)="passEditData(episode)"
+              data-toggle="modal" data-target="#confirmDeleteModal">Delete</button>
+            <button *ngIf="user.email == profile.email" class="btn btn-primary" (click)="passEditData(episode)"
+              data-toggle="modal" data-target="#editEpisodeModal">Edit</button>
+
+          </div>
+        </div>
+      </div>
+
+
+
+
+    </div>
+  </div>
+
+  <!--Pagination-->
+  <div class="pagediv" style="margin-top:30px;">
+
+    <ul class="pagination">
+      <li class="page-item enabled">
+        <a class="page-link" (click)="previousPage()" tabindex="-1">Previous</a></li>
+      <li *ngFor="let p of pageAmount; let i = index" class="page-item" [ngClass]="{'active': page==i+1}"><a
+          class="page-link" (click)="goToPage(i+1)">{{i+1}} <span class="sr-only"
+            *ngIf="page === 1">(current)</span></a></li>
+      <li class="page-item">
+        <a class="page-link" (click)="nextPage()">Next</a>
+      </li>
+    </ul>
+
+  </div>
+
+</div>
+
+<!--Modal to add episode-->
+<div class="modal fade" id="addEpisodeModal" tabindex="-1" role="dialog" aria-labelledby="addEpisodeModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add a New Episode</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="episodeForm" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <div class="col-sm">
+              <div class="form-group">
+                <label for="name">Enter the episode a name</label>
+                <input mdbInput type="text" id="name" name="name" class="form-control" formControlName="name"
+                  placeholder="Episode name" [ngClass]="{'error': isAddInvalid('name')}">
+              </div>
+              <div class="form-group">
+                <label for="number">Enter an episode number</label>
+                <input type="number" id="number" name="number" class="form-control" placeholder="Episode Number"
+                  formControlName="number" [ngClass]="{'error': isAddInvalid('number')}">
+
+              </div>
+              <div class="form-group">
+                <label for="season">Enter a season number</label>
+                <input type="number" id="season" name="season" class="form-control" placeholder="Season"
+                  formControlName="season" [ngClass]="{'error': isAddInvalid('season')}">
+
+              </div>
+              <div class="form-group">
+                <label for="airdate">Enter an airdate</label>
+                <input type="date" id="airdate" name="airdate" class="form-control" placeholder="2011-08-19"
+                  formControlName="airdate" [ngClass]="{'error': isAddInvalid('airdate')}">
+
+              </div>
+              <div class="form-group">
+                <label for="airtime">Enter an airtime</label>
+                <input type="time" id="airtime" name="airtime" class="form-control" placeholder="13:45:00"
+                  formControlName="airtime" [ngClass]="{'error': isAddInvalid('airtime')}">
+
+              </div>
+              <div class="form-group">
+                <label for="airstamp">Enter an airstamp</label>
+                <input type="datetime-local" id="airstamp" name="airstamp" class="form-control"
+                  placeholder="2011-08-19 13:45:00" formControlName="airstamp"
+                  [ngClass]="{'error': isAddInvalid('airstamp')}">
+
+              </div>
+              <div class="form-group">
+                <label for="runtime">Enter the runtime in minutes</label>
+                <input type="number" id="runtime" name="runtime" class="form-control" placeholder="runtime"
+                  formControlName="runtime" [ngClass]="{'error': isAddInvalid('runtime')}">
+
+              </div>
+              <div class="form-group">
+                <label for="image">Optional! Enter an image url link</label>
+                <input type="text" id="image" name="image" class="form-control"
+                  placeholder="Leave blank if no image available" formControlName="image">
+
+              </div>
+              <div class="form-group">
+                <label for="summary">Please leave a summary of the episode</label>
+                <textarea type="text" id="summary" name="summary" rows="3" class="form-control"
+                  placeholder="Summary of Episode" formControlName="summary"
+                  [ngClass]="{'error': isAddInvalid('summary')}">
+                                </textarea>
+              </div>
+              <div class="form-group">
+                <label for="url">Enter a url</label>
+                <input type="url" id="url" name="url" class="form-control" placeholder="https://example.com"
+                  formControlName="url" [ngClass]="{'error': isAddInvalid('url')}">
+
+              </div>
+              <div class="form-group">
+                <label for="_links">Enter a links</label>
+                <input type="url" id="_links" name="_links" class="form-control" placeholder="https://example.com"
+                  formControlName="_links" [ngClass]="{'error': isAddInvalid('_links')}">
+
+              </div>
+
+            </div>
+          </div>
+          <div class="modal-footer">
+            <span *ngIf="isAddIncomplete()">
+              You must complete all fields</span>
+            <button *ngIf="!isAddIncomplete()" type="submit" class="btn btn-primary" data-toggle="modal"
+              data-target="#addEpisodeModal">Add Episode</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal to edit episode-->
+<div class="modal fade" id="editEpisodeModal" tabindex="-1" role="dialog" aria-labelledby="editEpisodeModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Episode</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="editEpisodeForm" (ngSubmit)="onEdit()">
+          <div class="row">
+            <div class="col-sm">
+              <div class="form-group">
+                <label for="editName">name</label>
+                <input mdbInput type="text" id="editName" name="editName" class="form-control"
+                  formControlName="editName" placeholder="Name">
+              </div>
+              <div class="form-group">
+                <label for="editNumber">Please leave a number</label>
+                <input type="number" id="editNumber" name="editNumber" class="form-control" placeholder="Episode Number"
+                  formControlName="editNumber">
+
+              </div>
+              <div class="form-group">
+                <label for="editAirdate">Please leave a airdate</label>
+                <input type="date" id="editAirdate" name="editAirdate" class="form-control" placeholder="Airdate"
+                  formControlName="editAirdate">
+
+              </div>
+              <div class="form-group">
+                <label for="editAirtime">Please leave a airtime</label>
+                <input type="time" id="editAirtime" name="editAirtime" class="form-control" placeholder="Airtime"
+                  formControlName="editAirtime">
+
+              </div>
+              <div class="form-group">
+                <label for="editAirstamp">Please leave a airstamp</label>
+                <input type="datetime-local" id="editAirstamp" name="editAirstamp" class="form-control"
+                  placeholder="Airstamp" formControlName="editAirstamp">
+
+              </div>
+              <div class="form-group">
+                <label for="editRuntime">Please leave a runtime</label>
+                <input type="number" id="editRuntime" name="editRuntime" class="form-control" placeholder="Runtime"
+                  formControlName="editRuntime">
+
+              </div>
+              <div class="form-group">
+                <label for="editImage">Please leave a image</label>
+                <input type="url" id="editImage" name="editImage" class="form-control" placeholder="Image URL"
+                  formControlName="editImage">
+
+              </div>
+              <div class="form-group">
+                <label for="editSummary">Please leave a summary</label>
+                <textarea type="text" id="editSummary" name="editSummary" rows="3" class="form-control"
+                  placeholder="Summary" formControlName="editSummary">
+                                </textarea>
+              </div>
+              <div class="form-group">
+                <label for="edit_links">Please leave a _links</label>
+                <input type="url" id="edit_links" name="edit_links" class="form-control" placeholder="_links"
+                  formControlName="edit_links">
+
+              </div>
+
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#editEpisodeModal">Submit
+              Edit Episode</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal to delete episode-->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Are you sure you want to delete this episode?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" (click)="onDelete(1)" class="btn btn-danger" data-toggle="modal"
+          data-target="#confirmDeleteModal"> Yes </button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+.container{
+    min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+    min-height: 100vh; /* These two lines are counted as one :-)       */
+  
+    
+    align-items: center;
+  }
+
+  .video{
+
+    
+    align-items: center;
+  }
+  .row{
+    
+    align-items: center;
+  }
+
+  .jumbotron {
+    background-image: url("http://static.tvmaze.com/uploads/images/original_untouched/70/175852.jpg");
+    background-size: cover;
+    min-height: 500px;
+  
+  }
+  .h1 {
+    color:  white;
+    
+  }
+ 

@@ -1,0 +1,333 @@
+<div *ngFor="let episode of webService.episode_list | async">
+  <div class="container" style="margin-top: 100px">
+    <div class="row">
+      <div class="col-sm-12">
+        <!--episode displayed-->
+        <div class="card text-white bg-dark mb-3">
+          <img [src]="episode.image" class="card-img-top img-fluid">
+          <div class="card-img-top img-fluid-overlay">
+            <h5 class="card-title p-2">{{ episode.name }}</h5>
+
+          </div>
+
+          <div class="card-header">
+            Season: {{ episode.season }} Episode: {{ episode.number }}
+          </div>
+          <div class="card-body">
+
+            <div class="div">
+              Air Date: {{episode.airdate}} Runtime: {{episode.runtime}}
+            </div>
+            <div class="div">
+              {{ episode.summary }}
+
+            </div>
+
+          </div>
+          <div class="card-footer">
+            Here {{episode.avgStars}} Stars
+            {{episode.avgActingRating}} Music
+            {{episode.avgStoryRating}} Story
+            {{episode.avgActingRating}} Acting
+            {{ episode.reviews.length }}
+            reviews available
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--reviews of above episode displayed-->
+  <div class="container">
+    <div class="row py-5">
+      <div class="col-sm-12 col-lg-6  py-5" *ngFor="let review of webService.reviews_list | async">
+
+        <div class="card text-white bg-dark mb-3 card h-100">
+
+          <div class="review-header p-2">
+            Review by {{ review.username }}
+            on {{ review.date}}
+          </div>
+          <div class="review-body p-2">
+            {{ review.comment }}
+            <hr>
+          </div>
+          <div class="review-footer p-2">
+            Stars: {{ review.stars }}
+            Acting Rating: {{ review.actingRating }}
+            Music Rating: {{ review.musicRating }} Story Rating: {{ review.storyRating }}
+
+          </div>
+
+
+        </div>
+        <div class="text-right">
+          <div class="btn-group" *ngIf="auth.userProfile$ | async as profile">
+            <button *ngIf="review.username == profile.email" class="btn btn-danger m-1"
+              (click)="passDeleteData(episode, review)" data-toggle="modal"
+              data-target="#confirmDeleteModal">Delete</button>
+
+            <button *ngIf="review.username == profile.email " type="button" (click)="passEditData(review)"
+              class="btn btn-primary m-1" data-toggle="modal" data-target="#editReviewModal">Edit Review</button>
+
+            <div *ngFor="let user of webService.user_list | async">
+              <button *ngIf="user.email == profile.email" class="btn btn-danger m-1"
+                (click)="passDeleteData(episode, review)" data-toggle="modal" data-target="#confirmDeleteModal">Admin
+                Delete</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    <div class="text-center" style="margin-bottom: 100px">
+
+      <button *ngIf="auth.loggedIn" type="button" class="btn btn-primary" data-toggle="modal"
+        data-target="#addReviewModal">
+        Add Review
+      </button>
+      <h1 *ngIf="!auth.loggedIn"> Log in to add a review.</h1>
+    </div>
+  </div>
+</div>
+
+
+<!--add review modal-->
+<div class="modal fade" id="addReviewModal" tabindex="-1" role="dialog" aria-labelledby="addReviewModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="auth.userProfile$ | async as profile">
+          <form [formGroup]="reviewForm" (ngSubmit)="onSubmit(profile.email)">
+            <div class="row">
+              <div class="col-sm">
+
+                <div class="form-group">
+                  <label for="comment">Please leave a review</label>
+                  <textarea type="text" id="comment" name="comment" rows="3" class="form-control"
+                    placeholder="Enter your comment" formControlName="comment"
+                    [ngClass]="{'error': isAddInvalid('comment')}">
+                                </textarea>
+                </div>
+
+              </div>
+
+              <div class="col-sm">
+                <div class="form-group">
+                  <label for="stars">Please provide a rating
+                    (5 = best)</label>
+                  <select id="stars" name="stars" class="form-control" formControlName="stars"
+                    [ngClass]="{'error': isAddInvalid('stars')}">
+                    <option value="1">1 star</option>
+                    <option value="2">2 stars</option>
+                    <option value="3">3 stars</option>
+                    <option value="4">4 stars</option>
+                    <option value="5">5 stars</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="actingRating">Please provide a actingRating
+                    (5 = best)</label>
+                  <select id="actingRating" name="actingRating" class="form-control" formControlName="actingRating"
+                    [ngClass]="{'error': isAddInvalid('actingRating')}">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="musicRating">Please provide a musicRating
+                    (5 = best)</label>
+                  <select id="musicRating" name="musicRating" class="form-control" formControlName="musicRating"
+                    [ngClass]="{'error': isAddInvalid('musicRating')}">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="storyRating">Please provide a storyRating
+                    (5 = best)</label>
+                  <select id="storyRating" name="storyRating" class="form-control" formControlName="storyRating"
+                    [ngClass]="{'error': isAddInvalid('storyRating')}">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="modal-footer">
+
+              <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#addReviewModal">Add
+                Review</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+<!--edit review modal-->
+<div class="modal fade" id="editReviewModal" tabindex="-1" role="dialog" aria-labelledby="editReviewModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Review</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="editReviewForm" (ngSubmit)="onEdit()">
+          <div class="row">
+            <div class="col-sm">
+
+              <div class="form-group">
+                <label for="editComment">Please leave a editComment</label>
+                <textarea type="text" id="editComment" name="editComment" rows="3" class="form-control"
+                  placeholder="editComment" formControlName="editComment">
+                                </textarea>
+              </div>
+
+            </div>
+
+            <div class="col-sm">
+              <div class="form-group">
+                <label for="editStars">Please provide a rating
+                  (5 = best)</label>
+                <select id="editStars" name="editStars" class="form-control" formControlName="editStars">
+                  <option value="1">1 star</option>
+                  <option value="2">2 stars</option>
+                  <option value="3">3 stars</option>
+                  <option value="4">4 stars</option>
+                  <option value="5">5 stars</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editActingRating">Please provide a editActingRating
+                  (5 = best)</label>
+                <select id="editActingRating" name="editActingRating" class="form-control"
+                  formControlName="editActingRating">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editMusicRating">Please provide a editMusicRating
+                  (5 = best)</label>
+                <select id="editMusicRating" name="editMusicRating" class="form-control"
+                  formControlName="editMusicRating">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editStoryRating">Please provide a editStoryRating
+                  (5 = best)</label>
+                <select id="editStoryRating" name="editStoryRating" class="form-control"
+                  formControlName="editStoryRating">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="modal-footer">
+
+            <button class="btn btn-primary" data-toggle="modal" data-target="#editReviewModal">Submit Edit
+              Review</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!--confirm modal-->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Are you sure you want to delete this episode?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" (click)="onDelete(1)" class="btn btn-danger" data-toggle="modal"
+          data-target="#confirmDeleteModal"> Yes </button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+      </div>
+    </div>
+  </div>
+</div>

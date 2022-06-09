@@ -1,0 +1,52 @@
+<div class="container" style="margin-top: 100px">
+  <div class="h1">Season</div>
+
+  <div class="container">
+    <!--search bar-->
+    <form [formGroup]="seasonForm" (ngSubmit)="onSeasonSearch()">
+      <div class="form-group">
+        <select id="season" name="season" class="form-control" formControlName="season">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" (click)="onSeasonSearch()">Search</button>
+    </form>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="div">
+            &nbsp;
+          </div>
+          <!--Display episodes in a row using cards-->
+          <div class="row">
+            <div class="col-sm-6 col-lg-4 py-5" *ngFor="let episode of webService.season_list |  async">
+              <div class="card text-white bg-dark mb-3 card h-100" [routerLink]="['/episodes', episode._id]"
+                style="cursor: pointer">
+                <img [src]="episode.image" class="card-img-top img-fluid">
+                <div class="card-img-top img-fluid-overlay">
+                  <h5 class="card-title p-2">{{ episode.name }}</h5>
+                </div>
+                <div class="card-header">
+                  Season: {{ episode.season }} Episode: {{ episode.number }}
+                </div>
+                <div class="card-body">
+                  {{ episode.summary }}
+                </div>
+                <div class="card-footer text-right">
+                  Stars: {{episode.avgStars}}
+                  <br>
+                  Average Music: {{episode.avgActingRating}} Story: {{episode.avgStoryRating}} Acting:
+                  {{episode.avgActingRating}}
+                  <br>
+                  Reviews available: {{episode.reviews.length}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
